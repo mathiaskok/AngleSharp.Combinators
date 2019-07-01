@@ -133,3 +133,9 @@ let hasAttributeWithValue attr value (elem: IElement) =
   match elem.GetAttribute attr with
   | null -> false
   | a -> a = value
+
+let fromBody (selector: IElement -> 'a) (doc: IDocument) =
+  selector doc.Body
+
+let fromHead (selector: IElement -> 'a) (doc: IDocument) =
+  selector doc.Head
