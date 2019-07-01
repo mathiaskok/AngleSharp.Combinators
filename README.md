@@ -1,0 +1,1 @@
+This is a small project which defines some simple combinator functions used to explore the AngleSharp-DOM. These functions are defined in F# and are primarily meant for personal use in other projects.
