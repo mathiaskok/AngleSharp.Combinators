@@ -11,6 +11,10 @@ let childrenWhere pred =
   children
   >> Seq.filter pred
 
+let tryFindChildWhere pred = 
+  children
+  >> Seq.tryFind pred
+
 let hasChildrenWhere pred =
   childrenWhere pred
   >> Seq.isEmpty
@@ -139,3 +143,35 @@ let fromBody (selector: IElement -> 'a) (doc: IDocument) =
 
 let fromHead (selector: IElement -> 'a) (doc: IDocument) =
   selector doc.Head
+
+
+module Operators =
+  type private ManySelector = IElement -> IElement seq
+  type private SingleSelector = IElement -> IElement
+  type private OptSelector = IElement -> IElement option
+
+  let private manyToMany (elems: IElement seq) (selector: ManySelector) : IElement seq = 
+    Seq.collect selector elems
+
+  let (|*>) = manyToMany
+
+  let (>*>) (s1: ManySelector) (s2: ManySelector) : ManySelector =
+    fun elem -> s1 elem |*> s2
+
+  let private optToMany (elemOpt: IElement option) (selector: ManySelector) : IElement seq =
+      match elemOpt with
+      | None -> Seq.empty
+      | Some e -> selector e
+
+  let (|?>) = optToMany
+
+  let (>?>) (s1: OptSelector) (s2: ManySelector) : ManySelector =
+    fun elem -> s1 elem |?> s2
+
+  let private forceOptToMany (elemOpt: IElement option) (selector: ManySelector) : IElement seq =
+    selector (Option.get elemOpt)
+
+  let (|!>) = forceOptToMany
+
+  let (>!>) (s1: OptSelector) (s2: ManySelector) : ManySelector =
+    fun elem -> s1 elem |!> s2
